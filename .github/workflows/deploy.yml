@@ -12,13 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v2.0 # Or netlify/actions/cli@v1 if using Netlify CLI
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
         with:
-          publish-dir: './' # The directory containing your index.html (e.g., './' for root)
-          production-branch: main # Or your desired production branch
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Required for some actions
-          netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
-          # Optional: Add other Netlify CLI flags if needed, e.g., --prod, --build
-          # args: '--prod'
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Netlify
+        run: npm install netlify-cli@17.10.1 -g
+
+      - name: Deploy to Netlify
+        id: netlify_deploy
+        run: |
+          netlify deploy \
+            --dir dist \
+            --site ${{ secrets.NETLIFY_SITE_ID }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
